@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pierce Larson</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: #0d0d0d;
+      color: #e8e8e8;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 480px;
+      padding: 2rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .profile {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      text-align: center;
+    }
+
+    .avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3a3a3a, #1e1e1e);
+      border: 2px solid #2a2a2a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: 600;
+      color: #888;
+      letter-spacing: -1px;
+      user-select: none;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: #f0f0f0;
+    }
+
+    .links {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .link-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.25rem;
+      background: #1a1a1a;
+      border: 1px solid #242424;
+      border-radius: 12px;
+      text-decoration: none;
+      color: #e8e8e8;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+    }
+
+    .link-card:hover {
+      background: #222;
+      border-color: #333;
+      transform: translateY(-1px);
+    }
+
+    .link-card:active {
+      transform: translateY(0);
+    }
+
+    .link-card .label {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .link-card .title {
+      color: #f0f0f0;
+    }
+
+    .link-card .subtitle {
+      font-size: 0.8rem;
+      color: #666;
+      font-weight: 400;
+    }
+
+    .link-card .arrow {
+      color: #444;
+      font-size: 1rem;
+      transition: color 0.15s ease;
+    }
+
+    .link-card:hover .arrow {
+      color: #888;
+    }
+
+    footer {
+      font-size: 0.75rem;
+      color: #3a3a3a;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="profile">
+      <div class="avatar">PL</div>
+      <h1>Pierce Larson</h1>
+    </div>
+
+    <div class="links">
+      <a class="link-card" href="https://delinea.com" target="_blank" rel="noopener noreferrer">
+        <div class="label">
+          <span class="title">Delinea</span>
+          <span class="subtitle">delinea.com</span>
+        </div>
+        <span class="arrow">↗</span>
+      </a>
+    </div>
+
+    <footer>pierce larson</footer>
+  </div>
+</body>
+</html>
