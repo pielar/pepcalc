@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Peptide Calculator</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0c0e10;
+      --surface: #13181e;
+      --surface2: #1a2028;
+      --accent: #00c2a8;
+      --accent2: #0077ff;
+      --warn: #ff9f43;
+      --text: #dde4ee;
+      --muted: #7a8a9a;
+      --border: #232d38;
+      --radius: 12px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      padding: 24px 16px 60px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.02em;
+    }
+
+    header p {
+      color: var(--muted);
+      margin-top: 6px;
+      font-size: 0.9rem;
+    }
+
+    .disclaimer {
+      max-width: 680px;
+      margin: 0 auto 28px;
+      background: rgba(255,159,67,0.07);
+      border: 1px solid rgba(255,159,67,0.25);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      font-size: 0.8rem;
+      color: var(--warn);
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 4px;
+      gap: 4px;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 10px;
+      background: transparent;
+      border: none;
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+    }
+
+    .tab.active {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+    }
+
+    .tab:not(.active):hover { background: var(--surface2); color: var(--text); }
+
+    .panel { display: none; }
+    .panel.active { display: flex; flex-direction: column; gap: 16px; }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+
+    .card-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      margin-bottom: 18px;
+    }
+
+    .form-group { margin-bottom: 16px; }
+    .form-group:last-child { margin-bottom: 0; }
+
+    label {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    label .unit { font-weight: 400; font-size: 0.78rem; color: #5a6a7a; }
+
+    .input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    input[type="number"], select {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 1rem;
+      padding: 10px 14px;
+      outline: none;
+      transition: border-color 0.2s;
+      appearance: none;
+    }
+
+    input[type="number"]:focus, select:focus { border-color: var(--accent); }
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button { opacity: 0.4; }
+
+    .input-suffix {
+      position: absolute;
+      right: 12px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      pointer-events: none;
+    }
+
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 480px) { .row { grid-template-columns: 1fr; } }
+
+    /* Result */
+    .result-box {
+      background: linear-gradient(135deg, rgba(0,194,168,0.08), rgba(0,119,255,0.06));
+      border: 1px solid rgba(0,194,168,0.25);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+    }
+
+    .result-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .result-value {
+      font-size: 2.6rem;
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+
+    .result-unit {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-left: 4px;
+    }
+
+    .result-sub {
+      margin-top: 10px;
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .result-sub strong { color: var(--text); }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 0;
+    }
+
+    .result-mini {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+
+    .result-mini .label { font-size: 0.75rem; color: var(--muted); font-weight: 600; margin-bottom: 4px; }
+    .result-mini .val { font-size: 1.4rem; font-weight: 800; color: var(--accent); }
+    .result-mini .val-unit { font-size: 0.8rem; color: var(--muted); margin-left: 3px; }
+
+    .syringe-visual {
+      margin-top: 14px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+
+    .syringe-label { font-size: 0.78rem; color: var(--muted); font-weight: 600; margin-bottom: 10px; }
+
+    .syringe-bar-wrap {
+      background: #0d1218;
+      border-radius: 4px;
+      height: 28px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .syringe-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: 4px;
+      transition: width 0.4s ease;
+      min-width: 2px;
+    }
+
+    .syringe-ticks {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 4px;
+      padding: 0 2px;
+    }
+
+    .syringe-ticks span {
+      font-size: 0.7rem;
+      color: #3a4a5a;
+    }
+
+    /* Tip */
+    .info-box {
+      background: rgba(0,119,255,0.06);
+      border: 1px solid rgba(0,119,255,0.15);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .info-box strong { color: var(--accent2); }
+
+    /* Divider */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 4px 0;
+    }
+
+    /* Peptide reference table */
+    .ref-table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+    .ref-table th {
+      text-align: left;
+      padding: 8px 10px;
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border-bottom: 1px solid var(--border);
+    }
+    .ref-table td {
+      padding: 10px 10px;
+      border-bottom: 1px solid rgba(35,45,56,0.6);
+      vertical-align: top;
+    }
+    .ref-table tr:last-child td { border-bottom: none; }
+    .ref-table .name { font-weight: 700; color: var(--text); }
+    .ref-table .cat {
+      display: inline-block;
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+    .cat-gh    { background: rgba(0,194,168,0.12); color: var(--accent); }
+    .cat-fat   { background: rgba(0,119,255,0.12); color: var(--accent2); }
+    .cat-repair{ background: rgba(255,159,67,0.12); color: var(--warn); }
+    .cat-other { background: rgba(150,150,180,0.1); color: var(--muted); }
+    .ref-table .muted { color: var(--muted); }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Peptide Calculator</h1>
+  <p>Reconstitution, dosing, and reference — all in one place.</p>
+</header>
+
+<div class="disclaimer">
+  For research and educational purposes only. Not medical advice. Always consult a qualified healthcare professional.
+</div>
+
+<div class="container">
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('reconstitution', this)">Reconstitution</button>
+    <button class="tab" onclick="switchTab('dosing', this)">Dose Calculator</button>
+    <button class="tab" onclick="switchTab('reference', this)">Reference</button>
+  </div>
+
+  <!-- RECONSTITUTION -->
+  <div id="panel-reconstitution" class="panel active">
+    <div class="card">
+      <div class="card-title">Vial Details</div>
+      <div class="row">
+        <div class="form-group">
+          <label>Peptide Amount <span class="unit">in vial</span></label>
+          <div class="input-wrap">
+            <input type="number" id="r-vial-mg" value="5" min="0.1" step="0.1" oninput="calcRecon()" />
+            <span class="input-suffix">mg</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>BAC Water Added <span class="unit">to vial</span></label>
+          <div class="input-wrap">
+            <input type="number" id="r-bac-ml" value="2" min="0.1" step="0.1" oninput="calcRecon()" />
+            <span class="input-suffix">mL</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="result-box" id="r-result">
+      <div class="result-label">Resulting Concentration</div>
+      <div>
+        <span class="result-value" id="r-conc-mcg">2500</span>
+        <span class="result-unit">mcg / mL</span>
+      </div>
+      <div class="result-sub">
+        Equivalent to <strong id="r-conc-mg">2.5 mg/mL</strong> &nbsp;|&nbsp;
+        Total in vial: <strong id="r-total">5000 mcg (5 mg)</strong>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Dose Planner</div>
+      <div class="row">
+        <div class="form-group">
+          <label>Desired Dose <span class="unit">per injection</span></label>
+          <div class="input-wrap">
+            <input type="number" id="r-dose-mcg" value="200" min="1" step="1" oninput="calcRecon()" />
+            <span class="input-suffix">mcg</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Syringe Size <span class="unit">insulin</span></label>
+          <select id="r-syringe" onchange="calcRecon()">
+            <option value="100">100 IU (1 mL)</option>
+            <option value="50">50 IU (0.5 mL)</option>
+            <option value="30">30 IU (0.3 mL)</option>
+          </select>
+        </div>
+      </div>
+
+      <hr class="divider" />
+
+      <div class="result-grid" style="margin-top:16px;">
+        <div class="result-mini">
+          <div class="label">Draw to (IU)</div>
+          <div class="val"><span id="r-iu">8</span><span class="val-unit">IU</span></div>
+        </div>
+        <div class="result-mini">
+          <div class="label">Draw to (mL)</div>
+          <div class="val"><span id="r-ml">0.08</span><span class="val-unit">mL</span></div>
+        </div>
+        <div class="result-mini">
+          <div class="label">Doses per Vial</div>
+          <div class="val"><span id="r-doses">25</span><span class="val-unit">doses</span></div>
+        </div>
+        <div class="result-mini">
+          <div class="label">Days Supply</div>
+          <div class="val"><span id="r-days">—</span><span class="val-unit" id="r-days-unit"></span></div>
+        </div>
+      </div>
+
+      <div class="syringe-visual">
+        <div class="syringe-label">Syringe fill level</div>
+        <div class="syringe-bar-wrap">
+          <div class="syringe-bar" id="r-bar" style="width: 8%"></div>
+        </div>
+        <div class="syringe-ticks">
+          <span>0</span><span id="r-tick-25"></span><span id="r-tick-50"></span><span id="r-tick-75"></span><span id="r-tick-100"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <strong>How to reconstitute:</strong> Inject BAC water slowly down the side of the vial — never directly onto the lyophilized peptide cake. Swirl gently; do not shake. Store reconstituted peptides refrigerated and use within 4–6 weeks.
+    </div>
+  </div>
+
+  <!-- DOSING -->
+  <div id="panel-dosing" class="panel">
+    <div class="card">
+      <div class="card-title">Known Concentration</div>
+      <div class="row">
+        <div class="form-group">
+          <label>Concentration</label>
+          <div class="input-wrap">
+            <input type="number" id="d-conc" value="2500" min="1" step="1" oninput="calcDose()" />
+            <span class="input-suffix">mcg/mL</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Desired Dose</label>
+          <div class="input-wrap">
+            <input type="number" id="d-dose" value="200" min="1" step="1" oninput="calcDose()" />
+            <span class="input-suffix">mcg</span>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Syringe Size</label>
+        <select id="d-syringe" onchange="calcDose()">
+          <option value="100">100 IU (1 mL)</option>
+          <option value="50">50 IU (0.5 mL)</option>
+          <option value="30">30 IU (0.3 mL)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="result-box">
+      <div class="result-label">Draw to</div>
+      <div>
+        <span class="result-value" id="d-iu">8</span>
+        <span class="result-unit">IU</span>
+        <span style="color:var(--muted);font-size:1rem;margin-left:12px;">= <span id="d-ml">0.08</span> mL</span>
+      </div>
+      <div class="result-sub" id="d-sub">Drawing 8 IU on a 100 IU syringe delivers 200 mcg.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Multi-Dose Planner</div>
+      <div class="row">
+        <div class="form-group">
+          <label>Injections per Day</label>
+          <div class="input-wrap">
+            <input type="number" id="d-freq" value="1" min="1" max="6" step="1" oninput="calcDose()" />
+            <span class="input-suffix">×/day</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Total Peptide Available</label>
+          <div class="input-wrap">
+            <input type="number" id="d-total-mg" value="5" min="0.1" step="0.1" oninput="calcDose()" />
+            <span class="input-suffix">mg</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="result-grid" style="margin-top:4px;">
+        <div class="result-mini">
+          <div class="label">Daily Dose</div>
+          <div class="val"><span id="d-daily">200</span><span class="val-unit">mcg</span></div>
+        </div>
+        <div class="result-mini">
+          <div class="label">Weekly Dose</div>
+          <div class="val"><span id="d-weekly">1400</span><span class="val-unit">mcg</span></div>
+        </div>
+        <div class="result-mini">
+          <div class="label">Total Doses</div>
+          <div class="val"><span id="d-total-doses">25</span></div>
+        </div>
+        <div class="result-mini">
+          <div class="label">Days Supply</div>
+          <div class="val"><span id="d-supply">25</span><span class="val-unit">days</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <strong>Note:</strong> IU on an insulin syringe = 0.01 mL per unit on a 100 IU syringe. A 50 IU syringe still holds 0.5 mL — each unit = 0.01 mL. Always double-check your math before injecting.
+    </div>
+  </div>
+
+  <!-- REFERENCE -->
+  <div id="panel-reference" class="panel">
+    <div class="card">
+      <div class="card-title">Common Peptides — Quick Reference</div>
+      <table class="ref-table">
+        <thead>
+          <tr>
+            <th>Peptide</th>
+            <th>Category</th>
+            <th>Common Dose</th>
+            <th>Frequency</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="name">BPC-157</span></td>
+            <td><span class="cat cat-repair">Repair</span></td>
+            <td>200–500 mcg</td>
+            <td>1–2× daily</td>
+          </tr>
+          <tr>
+            <td><span class="name">TB-500</span><br><span class="muted" style="font-size:0.75rem">Thymosin Beta-4</span></td>
+            <td><span class="cat cat-repair">Repair</span></td>
+            <td>2–2.5 mg</td>
+            <td>2× / week</td>
+          </tr>
+          <tr>
+            <td><span class="name">CJC-1295</span></td>
+            <td><span class="cat cat-gh">GH Secretagogue</span></td>
+            <td>100–300 mcg</td>
+            <td>2–3× / week</td>
+          </tr>
+          <tr>
+            <td><span class="name">Ipamorelin</span></td>
+            <td><span class="cat cat-gh">GH Secretagogue</span></td>
+            <td>100–300 mcg</td>
+            <td>1–3× daily</td>
+          </tr>
+          <tr>
+            <td><span class="name">GHRP-2</span></td>
+            <td><span class="cat cat-gh">GH Secretagogue</span></td>
+            <td>100–300 mcg</td>
+            <td>2–3× daily</td>
+          </tr>
+          <tr>
+            <td><span class="name">GHRP-6</span></td>
+            <td><span class="cat cat-gh">GH Secretagogue</span></td>
+            <td>100–300 mcg</td>
+            <td>2–3× daily</td>
+          </tr>
+          <tr>
+            <td><span class="name">Sermorelin</span></td>
+            <td><span class="cat cat-gh">GH Secretagogue</span></td>
+            <td>200–500 mcg</td>
+            <td>1× daily (pre-sleep)</td>
+          </tr>
+          <tr>
+            <td><span class="name">Hexarelin</span></td>
+            <td><span class="cat cat-gh">GH Secretagogue</span></td>
+            <td>100–200 mcg</td>
+            <td>2–3× daily</td>
+          </tr>
+          <tr>
+            <td><span class="name">AOD-9604</span></td>
+            <td><span class="cat cat-fat">Fat Loss</span></td>
+            <td>250–500 mcg</td>
+            <td>1× daily (fasted)</td>
+          </tr>
+          <tr>
+            <td><span class="name">Tesamorelin</span></td>
+            <td><span class="cat cat-fat">Fat Loss</span></td>
+            <td>1–2 mg</td>
+            <td>1× daily</td>
+          </tr>
+          <tr>
+            <td><span class="name">PT-141</span><br><span class="muted" style="font-size:0.75rem">Bremelanotide</span></td>
+            <td><span class="cat cat-other">Other</span></td>
+            <td>0.5–2 mg</td>
+            <td>As needed (45–60 min prior)</td>
+          </tr>
+          <tr>
+            <td><span class="name">Epithalon</span></td>
+            <td><span class="cat cat-other">Other</span></td>
+            <td>5–10 mg</td>
+            <td>Cycle: 10–20 days</td>
+          </tr>
+          <tr>
+            <td><span class="name">KPV</span></td>
+            <td><span class="cat cat-repair">Repair</span></td>
+            <td>100–500 mcg</td>
+            <td>1–2× daily</td>
+          </tr>
+          <tr>
+            <td><span class="name">Selank</span></td>
+            <td><span class="cat cat-other">Other</span></td>
+            <td>100–300 mcg</td>
+            <td>1–2× daily</td>
+          </tr>
+          <tr>
+            <td><span class="name">Semax</span></td>
+            <td><span class="cat cat-other">Other</span></td>
+            <td>100–600 mcg</td>
+            <td>1–2× daily</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="info-box">
+      <strong>Reconstitution rule of thumb:</strong> Add 1–2 mL BAC water per 5 mg vial for a concentration of 2,500–5,000 mcg/mL. Keep doses consistent and track injection sites if administering locally.
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+function switchTab(name, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+}
+
+// ── Reconstitution Calculator ─────────────────────────────────────────────────
+function calcRecon() {
+  const vialMg   = parseFloat(document.getElementById('r-vial-mg').value) || 0;
+  const bacMl    = parseFloat(document.getElementById('r-bac-ml').value)  || 0;
+  const doseMcg  = parseFloat(document.getElementById('r-dose-mcg').value)|| 0;
+  const syringeIU= parseInt(document.getElementById('r-syringe').value)   || 100;
+
+  if (vialMg <= 0 || bacMl <= 0) return;
+
+  const totalMcg   = vialMg * 1000;
+  const concMcgMl  = totalMcg / bacMl;
+  const concMgMl   = concMcgMl / 1000;
+
+  document.getElementById('r-conc-mcg').textContent = fmt(concMcgMl);
+  document.getElementById('r-conc-mg').textContent   = fmt(concMgMl, 3) + ' mg/mL';
+  document.getElementById('r-total').textContent     = `${fmt(totalMcg)} mcg (${fmt(vialMg)} mg)`;
+
+  if (doseMcg > 0) {
+    const drawMl   = doseMcg / concMcgMl;
+    const mlPerIU  = 1 / syringeIU;       // mL per IU
+    const drawIU   = drawMl / mlPerIU;
+    const doses    = totalMcg / doseMcg;
+
+    document.getElementById('r-iu').textContent    = fmt(drawIU, 1);
+    document.getElementById('r-ml').textContent    = fmt(drawMl, 3);
+    document.getElementById('r-doses').textContent = fmt(doses, 1);
+
+    // Days supply (assume 1 dose/day as default display)
+    document.getElementById('r-days').textContent     = fmt(doses, 1);
+    document.getElementById('r-days-unit').textContent= 'days (1×/day)';
+
+    // Syringe bar — % of syringe capacity
+    const pct = Math.min((drawIU / syringeIU) * 100, 100);
+    document.getElementById('r-bar').style.width = pct + '%';
+
+    // Ticks
+    const q = syringeIU / 4;
+    document.getElementById('r-tick-25').textContent  = fmt(q,0);
+    document.getElementById('r-tick-50').textContent  = fmt(q*2,0);
+    document.getElementById('r-tick-75').textContent  = fmt(q*3,0);
+    document.getElementById('r-tick-100').textContent = syringeIU + ' IU';
+  }
+}
+
+// ── Dose Calculator ───────────────────────────────────────────────────────────
+function calcDose() {
+  const conc     = parseFloat(document.getElementById('d-conc').value)     || 0;
+  const dose     = parseFloat(document.getElementById('d-dose').value)     || 0;
+  const syringeIU= parseInt(document.getElementById('d-syringe').value)    || 100;
+  const freq     = parseFloat(document.getElementById('d-freq').value)     || 1;
+  const totalMg  = parseFloat(document.getElementById('d-total-mg').value) || 0;
+
+  if (conc <= 0 || dose <= 0) return;
+
+  const drawMl  = dose / conc;
+  const mlPerIU = 1 / syringeIU;
+  const drawIU  = drawMl / mlPerIU;
+
+  document.getElementById('d-iu').textContent  = fmt(drawIU, 1);
+  document.getElementById('d-ml').textContent  = fmt(drawMl, 3);
+  document.getElementById('d-sub').textContent =
+    `Drawing ${fmt(drawIU,1)} IU on a ${syringeIU} IU syringe delivers ${fmt(dose)} mcg.`;
+
+  const daily  = dose * freq;
+  const weekly = daily * 7;
+  document.getElementById('d-daily').textContent  = fmt(daily);
+  document.getElementById('d-weekly').textContent = fmt(weekly);
+
+  if (totalMg > 0) {
+    const totalDoses = (totalMg * 1000) / dose;
+    const supplyDays = totalDoses / freq;
+    document.getElementById('d-total-doses').textContent = fmt(totalDoses, 1);
+    document.getElementById('d-supply').textContent      = fmt(supplyDays, 1);
+  }
+}
+
+function fmt(n, decimals) {
+  if (isNaN(n) || !isFinite(n)) return '—';
+  if (decimals === undefined) {
+    // auto
+    if (n >= 100) return Math.round(n).toLocaleString();
+    if (n >= 10)  return n.toFixed(1);
+    return n.toFixed(2);
+  }
+  return n.toFixed(decimals).replace(/\.?0+$/, '') || '0';
+}
+
+// Init
+calcRecon();
+calcDose();
+</script>
+</body>
+</html>

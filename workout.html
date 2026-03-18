@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Viking Reps</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f0f13;
+      --surface: #1a1a24;
+      --surface2: #22222f;
+      --accent: #6c63ff;
+      --accent2: #ff6584;
+      --text: #e8e8f0;
+      --muted: #888899;
+      --border: #2e2e40;
+      --radius: 12px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      padding: 24px 16px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    header h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    header p {
+      color: var(--muted);
+      margin-top: 6px;
+      font-size: 1rem;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      margin-bottom: 20px;
+    }
+
+    .card h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card h2 .step-badge {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 800;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    label {
+      display: block;
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .form-group { margin-bottom: 18px; }
+    .form-group:last-child { margin-bottom: 0; }
+
+    select, input[type="number"] {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.95rem;
+      padding: 10px 14px;
+      outline: none;
+      transition: border-color 0.2s;
+      appearance: none;
+    }
+
+    select:focus, input[type="number"]:focus {
+      border-color: var(--accent);
+    }
+
+    .chip-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      user-select: none;
+      color: var(--muted);
+    }
+
+    .chip:hover { border-color: var(--accent); color: var(--text); }
+    .chip.selected { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 500px) { .row { grid-template-columns: 1fr; } }
+
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none;
+      border-radius: var(--radius);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      margin-top: 8px;
+    }
+
+    .btn:hover { opacity: 0.9; }
+    .btn:active { transform: scale(0.98); }
+
+    /* Plan Output */
+    #plan-section { display: none; }
+
+    .plan-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .plan-header h2 {
+      font-size: 1.4rem;
+      font-weight: 800;
+    }
+
+    .plan-stats {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .stat-pill {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .stat-pill span { color: var(--accent); font-weight: 700; }
+
+    .day-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+
+    .day-header {
+      background: linear-gradient(135deg, rgba(108,99,255,0.12), rgba(255,101,132,0.08));
+      padding: 12px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .day-header h3 {
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .day-tag {
+      font-size: 0.75rem;
+      color: var(--accent);
+      font-weight: 600;
+      background: rgba(108,99,255,0.15);
+      padding: 3px 10px;
+      border-radius: 12px;
+    }
+
+    .day-tag.rest { color: var(--muted); background: rgba(136,136,153,0.1); }
+
+    .exercise-list { padding: 14px 18px; }
+
+    .exercise {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .exercise:last-child { border-bottom: none; }
+
+    .ex-name { font-weight: 600; font-size: 0.9rem; }
+    .ex-muscle { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+    .ex-sets { font-size: 0.85rem; color: var(--accent2); font-weight: 700; white-space: nowrap; }
+
+    .tip-box {
+      background: rgba(108,99,255,0.08);
+      border: 1px solid rgba(108,99,255,0.2);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 16px;
+      line-height: 1.6;
+    }
+
+    .tip-box strong { color: var(--accent); }
+
+    .btn-sm {
+      padding: 8px 18px;
+      font-size: 0.85rem;
+      width: auto;
+      display: inline-block;
+      margin-top: 0;
+    }
+
+    .rest-day-body {
+      padding: 14px 18px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Viking Reps</h1>
+    <p>Answer a few questions and get a personalized plan instantly.</p>
+  </header>
+
+  <!-- FORM -->
+  <div id="form-section">
+    <div class="card">
+      <h2><span class="step-badge">1</span> About You</h2>
+      <div class="row">
+        <div class="form-group">
+          <label>Fitness Level</label>
+          <select id="level">
+            <option value="beginner">Beginner (0–6 months)</option>
+            <option value="intermediate">Intermediate (6m–2yr)</option>
+            <option value="advanced">Advanced (2+ years)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Age Range</label>
+          <select id="age">
+            <option value="teen">Under 18</option>
+            <option value="young">18–30</option>
+            <option value="mid" selected>31–45</option>
+            <option value="senior">46+</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span class="step-badge">2</span> Your Goal</h2>
+      <div class="form-group">
+        <label>Primary Goal</label>
+        <div class="chip-group" id="goal-chips">
+          <div class="chip selected" data-val="strength">Build Strength</div>
+          <div class="chip" data-val="muscle">Gain Muscle</div>
+          <div class="chip" data-val="fat_loss">Lose Fat</div>
+          <div class="chip" data-val="endurance">Endurance</div>
+          <div class="chip" data-val="athletic">Athletic Performance</div>
+          <div class="chip" data-val="flexibility">Flexibility & Mobility</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span class="step-badge">3</span> Schedule & Equipment</h2>
+      <div class="row">
+        <div class="form-group">
+          <label>Days per Week</label>
+          <select id="days">
+            <option value="2">2 days</option>
+            <option value="3" selected>3 days</option>
+            <option value="4">4 days</option>
+            <option value="5">5 days</option>
+            <option value="6">6 days</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Session Length</label>
+          <select id="duration">
+            <option value="30">30 minutes</option>
+            <option value="45" selected>45 minutes</option>
+            <option value="60">60 minutes</option>
+            <option value="90">90 minutes</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Available Equipment</label>
+        <div class="chip-group" id="equip-chips">
+          <div class="chip selected" data-val="barbell">Barbell</div>
+          <div class="chip selected" data-val="dumbbell">Dumbbells</div>
+          <div class="chip" data-val="cables">Cables / Machines</div>
+          <div class="chip" data-val="bands">Resistance Bands</div>
+          <div class="chip" data-val="pullup">Pull-up Bar</div>
+          <div class="chip" data-val="bodyweight">Bodyweight Only</div>
+          <div class="chip" data-val="kettlebell">Kettlebell</div>
+          <div class="chip" data-val="cardio_machine">Cardio Machine</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span class="step-badge">4</span> Focus Areas <span style="font-weight:400;color:var(--muted);font-size:0.85rem;">(optional)</span></h2>
+      <div class="form-group">
+        <label>Muscle Groups to Prioritize</label>
+        <div class="chip-group" id="focus-chips">
+          <div class="chip" data-val="chest">Chest</div>
+          <div class="chip" data-val="back">Back</div>
+          <div class="chip" data-val="shoulders">Shoulders</div>
+          <div class="chip" data-val="arms">Arms</div>
+          <div class="chip" data-val="legs">Legs</div>
+          <div class="chip" data-val="glutes">Glutes</div>
+          <div class="chip" data-val="core">Core</div>
+          <div class="chip" data-val="full_body">Full Body</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn" onclick="generatePlan()">Generate My Workout Plan</button>
+  </div>
+
+  <!-- PLAN OUTPUT -->
+  <div id="plan-section">
+    <div class="card">
+      <div class="plan-header">
+        <h2 id="plan-title">Your Custom Plan</h2>
+        <button class="btn btn-sm" onclick="resetForm()">Start Over</button>
+      </div>
+      <div class="plan-stats" id="plan-stats"></div>
+      <div id="plan-days"></div>
+      <div class="tip-box" id="plan-tip"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Chip selection
+document.querySelectorAll('#goal-chips .chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('#goal-chips .chip').forEach(c => c.classList.remove('selected'));
+    chip.classList.add('selected');
+  });
+});
+
+['#equip-chips', '#focus-chips'].forEach(sel => {
+  document.querySelectorAll(sel + ' .chip').forEach(chip => {
+    chip.addEventListener('click', () => chip.classList.toggle('selected'));
+  });
+});
+
+function getSelected(groupId) {
+  return [...document.querySelectorAll(`#${groupId} .chip.selected`)].map(c => c.dataset.val);
+}
+
+// Exercise database
+const DB = {
+  chest: {
+    barbell:    [{ name: 'Barbell Bench Press',      muscle: 'Chest, Triceps',    sets: '4×6–8'   },
+                 { name: 'Incline Barbell Press',    muscle: 'Upper Chest',       sets: '3×8–10'  }],
+    dumbbell:   [{ name: 'Dumbbell Bench Press',     muscle: 'Chest, Triceps',    sets: '4×8–12'  },
+                 { name: 'Incline DB Fly',            muscle: 'Upper Chest',       sets: '3×12–15' },
+                 { name: 'DB Pullover',               muscle: 'Chest, Lats',       sets: '3×10–12' }],
+    cables:     [{ name: 'Cable Crossover',          muscle: 'Chest',             sets: '3×12–15' },
+                 { name: 'Cable Fly (Low to High)',  muscle: 'Lower Chest',       sets: '3×12–15' }],
+    bodyweight: [{ name: 'Push-ups',                 muscle: 'Chest, Triceps',    sets: '4×max'   },
+                 { name: 'Wide Push-ups',             muscle: 'Chest',             sets: '3×15–20' }],
+    bands:      [{ name: 'Band Chest Press',         muscle: 'Chest',             sets: '3×15'    }],
+  },
+  back: {
+    barbell:    [{ name: 'Barbell Deadlift',         muscle: 'Full Back, Hamstrings', sets: '4×5'     },
+                 { name: 'Barbell Bent-over Row',    muscle: 'Lats, Rhomboids',       sets: '4×6–8'   }],
+    dumbbell:   [{ name: 'DB Single-arm Row',        muscle: 'Lats',                  sets: '3×10–12/side' },
+                 { name: 'DB Renegade Row',           muscle: 'Lats, Core',            sets: '3×8/side'}],
+    cables:     [{ name: 'Lat Pulldown',             muscle: 'Lats',                  sets: '4×10–12' },
+                 { name: 'Seated Cable Row',          muscle: 'Mid Back',              sets: '3×10–12' },
+                 { name: 'Cable Face Pull',           muscle: 'Rear Delts, Traps',     sets: '3×15'    }],
+    pullup:     [{ name: 'Pull-ups',                 muscle: 'Lats, Biceps',          sets: '4×max'   },
+                 { name: 'Chin-ups',                  muscle: 'Lats, Biceps',          sets: '3×max'   }],
+    bodyweight: [{ name: 'Superman Hold',            muscle: 'Lower Back',            sets: '3×30s'   }],
+    bands:      [{ name: 'Band Pull-apart',          muscle: 'Rear Delts, Traps',     sets: '3×20'    }],
+  },
+  shoulders: {
+    barbell:    [{ name: 'Overhead Press',           muscle: 'Shoulders, Triceps', sets: '4×6–8'   }],
+    dumbbell:   [{ name: 'DB Shoulder Press',        muscle: 'Shoulders',           sets: '4×10–12' },
+                 { name: 'DB Lateral Raise',          muscle: 'Side Delts',          sets: '3×15'    },
+                 { name: 'DB Front Raise',            muscle: 'Front Delts',         sets: '3×12'    }],
+    cables:     [{ name: 'Cable Lateral Raise',      muscle: 'Side Delts',          sets: '3×15'    },
+                 { name: 'Cable Upright Row',         muscle: 'Traps, Delts',        sets: '3×12'    }],
+    bodyweight: [{ name: 'Pike Push-ups',            muscle: 'Shoulders',           sets: '3×10–15' }],
+    bands:      [{ name: 'Band Shoulder Press',      muscle: 'Shoulders',           sets: '3×15'    }],
+    kettlebell: [{ name: 'KB Press',                 muscle: 'Shoulders',           sets: '3×10/side'}],
+  },
+  arms: {
+    barbell:    [{ name: 'Barbell Curl',             muscle: 'Biceps',             sets: '3×8–10'  },
+                 { name: 'Skull Crushers',            muscle: 'Triceps',            sets: '3×10–12' }],
+    dumbbell:   [{ name: 'DB Hammer Curl',           muscle: 'Biceps, Brachialis', sets: '3×10–12' },
+                 { name: 'DB Overhead Tricep Ext.',  muscle: 'Triceps',            sets: '3×12–15' },
+                 { name: 'Concentration Curl',        muscle: 'Biceps',             sets: '3×12/side'}],
+    cables:     [{ name: 'Cable Curl',               muscle: 'Biceps',             sets: '3×12–15' },
+                 { name: 'Tricep Pushdown',           muscle: 'Triceps',            sets: '3×12–15' }],
+    bodyweight: [{ name: 'Diamond Push-ups',         muscle: 'Triceps',            sets: '3×12–15' }],
+    bands:      [{ name: 'Band Bicep Curl',          muscle: 'Biceps',             sets: '3×15'    }],
+  },
+  legs: {
+    barbell:    [{ name: 'Barbell Back Squat',       muscle: 'Quads, Glutes, Core', sets: '4×5–8'   },
+                 { name: 'Romanian Deadlift',         muscle: 'Hamstrings, Glutes',  sets: '3×8–10'  }],
+    dumbbell:   [{ name: 'DB Goblet Squat',          muscle: 'Quads, Glutes',       sets: '4×12'    },
+                 { name: 'DB Walking Lunges',         muscle: 'Quads, Glutes',       sets: '3×10/leg'},
+                 { name: 'DB Romanian Deadlift',      muscle: 'Hamstrings',          sets: '3×10–12' }],
+    cables:     [{ name: 'Leg Press',                muscle: 'Quads, Glutes',       sets: '4×12–15' },
+                 { name: 'Leg Curl',                  muscle: 'Hamstrings',          sets: '3×12–15' }],
+    bodyweight: [{ name: 'Bodyweight Squat',         muscle: 'Quads, Glutes',       sets: '4×15–20' },
+                 { name: 'Reverse Lunges',            muscle: 'Quads, Glutes',       sets: '3×12/side'},
+                 { name: 'Glute Bridge',              muscle: 'Glutes, Hamstrings',  sets: '3×20'    }],
+    bands:      [{ name: 'Band Squat',               muscle: 'Quads, Glutes',       sets: '3×15'    },
+                 { name: 'Band Lateral Walk',         muscle: 'Glutes, Hips',        sets: '3×15 steps'}],
+    kettlebell: [{ name: 'KB Goblet Squat',          muscle: 'Quads, Glutes',       sets: '4×12'    },
+                 { name: 'KB Swing',                  muscle: 'Posterior Chain',     sets: '4×15'    }],
+  },
+  glutes: {
+    barbell:    [{ name: 'Hip Thrust',               muscle: 'Glutes',              sets: '4×10–12' },
+                 { name: 'Romanian Deadlift',         muscle: 'Glutes, Hamstrings',  sets: '3×8–10'  }],
+    dumbbell:   [{ name: 'DB Hip Thrust',            muscle: 'Glutes',              sets: '4×12'    },
+                 { name: 'DB Sumo Deadlift',          muscle: 'Glutes, Inner Thighs',sets: '3×10–12' }],
+    cables:     [{ name: 'Cable Kickback',           muscle: 'Glutes',              sets: '3×15/side'},
+                 { name: 'Cable Pull-through',        muscle: 'Glutes, Hamstrings',  sets: '3×12'    }],
+    bodyweight: [{ name: 'Glute Bridge',             muscle: 'Glutes',              sets: '3×20'    },
+                 { name: 'Single-leg Glute Bridge',  muscle: 'Glutes',              sets: '3×15/side'},
+                 { name: 'Donkey Kicks',              muscle: 'Glutes',              sets: '3×15/side'}],
+    bands:      [{ name: 'Band Hip Thrust',          muscle: 'Glutes',              sets: '4×15'    },
+                 { name: 'Clamshell',                 muscle: 'Glutes, Hip Rotators',sets: '3×20/side'}],
+    kettlebell: [{ name: 'KB Swing',                 muscle: 'Glutes, Posterior Chain', sets: '4×15'}],
+  },
+  core: {
+    bodyweight: [{ name: 'Plank',                    muscle: 'Core',                sets: '3×45s'   },
+                 { name: 'Hollow Body Hold',          muscle: 'Core',                sets: '3×30s'   },
+                 { name: 'Dead Bug',                  muscle: 'Core',                sets: '3×10/side'},
+                 { name: 'Bicycle Crunches',          muscle: 'Obliques, Core',      sets: '3×20'    },
+                 { name: 'Mountain Climbers',         muscle: 'Core, Cardio',        sets: '3×30s'   }],
+    cables:     [{ name: 'Cable Woodchop',           muscle: 'Obliques, Core',      sets: '3×12/side'},
+                 { name: 'Ab Pulldown',               muscle: 'Abs',                 sets: '3×15'    }],
+    barbell:    [{ name: 'Ab Rollout',               muscle: 'Core',                sets: '3×8–10'  }],
+    dumbbell:   [{ name: 'DB Russian Twist',         muscle: 'Obliques',            sets: '3×15/side'},
+                 { name: 'Suitcase Carry',            muscle: 'Core, Grip',          sets: '3×30m/side'}],
+    bands:      [{ name: 'Band Pallof Press',        muscle: 'Core, Anti-rotation', sets: '3×12/side'}],
+  },
+  cardio: {
+    bodyweight:      [{ name: 'Jumping Jacks',        muscle: 'Cardiovascular',      sets: '3×1 min' },
+                      { name: 'Burpees',              muscle: 'Full Body, Cardio',   sets: '3×10'    }],
+    cardio_machine:  [{ name: 'Sprint Intervals',     muscle: 'Cardio',              sets: '8×30s on/30s off' },
+                      { name: 'Rowing Machine',       muscle: 'Full Body, Cardio',   sets: '3×4 min' }],
+    kettlebell:      [{ name: 'KB Swing Tabata',      muscle: 'Posterior Chain, Cardio', sets: '8×20s/10s'}],
+    bands:           [{ name: 'Band Squat Jumps',     muscle: 'Legs, Cardio',        sets: '3×15'    }],
+  },
+  flexibility: {
+    bodyweight: [{ name: 'Hip Flexor Stretch',       muscle: 'Hip Flexors',         sets: '3×30s/side'},
+                 { name: 'Pigeon Pose',               muscle: 'Glutes, Hip Rotators',sets: '3×45s/side'},
+                 { name: 'Cat-Cow Stretch',           muscle: 'Spine',               sets: '3×10 reps'},
+                 { name: 'Doorway Chest Stretch',     muscle: 'Chest, Front Delts',  sets: '3×30s'   },
+                 { name: "World's Greatest Stretch",  muscle: 'Full Body Mobility',  sets: '2×5/side' }],
+    bands:      [{ name: 'Band Hamstring Stretch',   muscle: 'Hamstrings',          sets: '3×30s/side'}],
+  },
+};
+
+const SPLIT = {
+  2: {
+    strength:    [['chest','shoulders','arms'],     ['back','legs','glutes']],
+    muscle:      [['chest','shoulders','arms'],     ['back','legs','glutes']],
+    fat_loss:    [['chest','back','core'],          ['legs','glutes','cardio']],
+    endurance:   [['chest','back'],                ['legs','cardio']],
+    athletic:    [['chest','back','legs'],         ['shoulders','arms','core']],
+    flexibility: [['flexibility','core'],           ['legs','glutes']],
+  },
+  3: {
+    strength:    [['chest','shoulders'],           ['back'],                ['legs','glutes']],
+    muscle:      [['chest','shoulders','arms'],    ['back','arms'],         ['legs','glutes','core']],
+    fat_loss:    [['chest','back','core'],         ['legs','glutes','cardio'],['shoulders','arms','cardio']],
+    endurance:   [['chest','back'],               ['cardio'],              ['legs','core']],
+    athletic:    [['legs','core'],                ['chest','shoulders'],   ['back','arms']],
+    flexibility: [['flexibility','core'],          ['legs','glutes'],       ['flexibility','shoulders']],
+  },
+  4: {
+    strength:    [['chest','shoulders'],           ['back'],                ['legs'],           ['arms','core']],
+    muscle:      [['chest','shoulders'],           ['back','arms'],         ['legs','glutes'],  ['shoulders','core']],
+    fat_loss:    [['chest','back'],               ['legs','glutes'],       ['shoulders','arms','cardio'],['core','cardio']],
+    endurance:   [['chest','back'],               ['cardio'],              ['legs','core'],    ['cardio']],
+    athletic:    [['legs','core'],                ['chest','shoulders'],   ['back'],           ['arms','cardio']],
+    flexibility: [['legs','glutes'],              ['chest','shoulders'],   ['flexibility'],    ['back','core']],
+  },
+  5: {
+    strength:    [['chest'],['back'],['legs'],['shoulders'],['arms','core']],
+    muscle:      [['chest','shoulders'],['back'],['legs'],['arms'],['glutes','core']],
+    fat_loss:    [['chest'],['back'],['legs','cardio'],['shoulders','arms'],['core','cardio']],
+    endurance:   [['chest','back'],['cardio'],['legs'],['cardio'],['core']],
+    athletic:    [['legs'],['chest','shoulders'],['back'],['arms','core'],['cardio']],
+    flexibility: [['legs'],['chest','shoulders'],['back'],['flexibility'],['core']],
+  },
+  6: {
+    strength:    [['chest'],['back'],['legs'],['shoulders'],['arms'],['core','cardio']],
+    muscle:      [['chest','shoulders'],['back'],['legs'],['arms'],['glutes'],['core','cardio']],
+    fat_loss:    [['chest'],['back'],['legs'],['shoulders','arms'],['cardio'],['core']],
+    endurance:   [['chest','back'],['cardio'],['legs'],['cardio'],['shoulders','core'],['cardio']],
+    athletic:    [['legs'],['chest'],['back'],['shoulders'],['arms'],['core','cardio']],
+    flexibility: [['chest'],['back'],['legs'],['shoulders'],['flexibility'],['core']],
+  },
+};
+
+const DAY_NAMES = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const MUSCLE_LABEL = {
+  chest:'Chest', back:'Back', shoulders:'Shoulders', arms:'Arms', legs:'Legs',
+  glutes:'Glutes', core:'Core', full_body:'Full Body', cardio:'Cardio', flexibility:'Flexibility',
+};
+
+function pickExercises(muscle, equipment, maxEx) {
+  if (muscle === 'full_body') {
+    return ['legs','chest','back','core'].flatMap(m => pickExercises(m, equipment, 1));
+  }
+  const group = DB[muscle];
+  if (!group) return [];
+
+  const order = ['barbell','dumbbell','cables','pullup','kettlebell','bands','bodyweight','cardio_machine'];
+  const sources = order.filter(e => equipment.includes(e) && group[e]);
+  const fallback = Object.keys(group);
+  const useSources = sources.length ? sources : fallback;
+
+  let pool = useSources.flatMap(s => group[s] || []);
+  const seen = new Set();
+  pool = pool.filter(ex => { if (seen.has(ex.name)) return false; seen.add(ex.name); return true; });
+  pool.sort(() => Math.random() - 0.5);
+  return pool.slice(0, maxEx);
+}
+
+function generatePlan() {
+  const goal   = getSelected('goal-chips')[0] || 'strength';
+  const equip  = getSelected('equip-chips');
+  const focus  = getSelected('focus-chips');
+  const daysN  = parseInt(document.getElementById('days').value);
+  const dur    = parseInt(document.getElementById('duration').value);
+  const level  = document.getElementById('level').value;
+
+  const effectiveEquip = equip.length ? equip : ['bodyweight'];
+  const exCount = dur <= 30 ? 4 : dur <= 45 ? 5 : dur <= 60 ? 6 : 8;
+
+  const templates = SPLIT[daysN] || SPLIT[3];
+  const split = templates[goal] || templates['strength'] || Object.values(templates)[0];
+
+  // Build 7-day schedule
+  const schedule = Array(7).fill(null);
+  const workoutSlots = [];
+  for (let i = 0; i < 7; i++) {
+    const slot = Math.round(i * daysN / 7);
+    if (slot < daysN && !workoutSlots.includes(slot)) {
+      workoutSlots.push(slot);
+      schedule[i] = split[slot];
+    }
+  }
+
+  const planDays = document.getElementById('plan-days');
+  planDays.innerHTML = '';
+  let totalEx = 0;
+
+  schedule.forEach((muscles, i) => {
+    const dc = document.createElement('div');
+    dc.className = 'day-card';
+
+    if (!muscles) {
+      dc.innerHTML = `
+        <div class="day-header">
+          <h3>${DAY_NAMES[i]}</h3>
+          <span class="day-tag rest">Rest</span>
+        </div>
+        <div class="rest-day-body">Active recovery — light walk, stretching, or yoga.</div>`;
+    } else {
+      // Honor focus overrides
+      let targets = muscles;
+      if (focus.length && !focus.includes('full_body')) {
+        const overlap = muscles.filter(m => focus.includes(m));
+        if (overlap.length) targets = [...new Set([...overlap, ...muscles])];
+      }
+
+      const dayLabel = targets.map(m => MUSCLE_LABEL[m] || m).join(' + ');
+      const perMuscle = Math.max(1, Math.floor(exCount / targets.length));
+      const exercises = [];
+      targets.forEach(m => exercises.push(...pickExercises(m, effectiveEquip, perMuscle)));
+      const final = exercises.slice(0, exCount);
+      totalEx += final.length;
+
+      const exHTML = final.map(ex => `
+        <div class="exercise">
+          <div>
+            <div class="ex-name">${ex.name}</div>
+            <div class="ex-muscle">${ex.muscle}</div>
+          </div>
+          <div class="ex-sets">${ex.sets}</div>
+        </div>`).join('');
+
+      dc.innerHTML = `
+        <div class="day-header">
+          <h3>${DAY_NAMES[i]}</h3>
+          <span class="day-tag">${dayLabel}</span>
+        </div>
+        <div class="exercise-list">${exHTML}</div>`;
+    }
+
+    planDays.appendChild(dc);
+  });
+
+  const goalLabels = {
+    strength:'Build Strength', muscle:'Gain Muscle', fat_loss:'Lose Fat',
+    endurance:'Endurance', athletic:'Athletic Performance', flexibility:'Flexibility & Mobility',
+  };
+
+  document.getElementById('plan-stats').innerHTML = `
+    <div class="stat-pill">Goal: <span>${goalLabels[goal]}</span></div>
+    <div class="stat-pill">Level: <span>${level.charAt(0).toUpperCase()+level.slice(1)}</span></div>
+    <div class="stat-pill">Days/week: <span>${daysN}</span></div>
+    <div class="stat-pill">Session: <span>${dur} min</span></div>
+    <div class="stat-pill">Exercises: <span>${totalEx} total</span></div>`;
+
+  document.getElementById('plan-title').textContent = `Your ${goalLabels[goal]} Plan`;
+
+  const tips = {
+    strength:    '<strong>Tip:</strong> Rest 2–4 min between heavy sets. Add weight or reps each week — progressive overload is the #1 driver of strength gains.',
+    muscle:      '<strong>Tip:</strong> Train each set close to failure (1–3 reps in reserve). Eat in a slight caloric surplus with 0.7–1g protein per lb of bodyweight.',
+    fat_loss:    '<strong>Tip:</strong> Keep rest periods short (60–90s) to keep heart rate elevated. A moderate caloric deficit + high protein preserves muscle while you cut.',
+    endurance:   '<strong>Tip:</strong> Consistency beats intensity. Gradually increase weekly volume and prioritize recovery — most endurance gains happen at rest.',
+    athletic:    '<strong>Tip:</strong> Focus on explosive compound movements. Add mobility and agility work on rest days to improve sport-specific performance.',
+    flexibility: '<strong>Tip:</strong> Hold each stretch 30–60 seconds and breathe through it. Consistency matters far more than depth — stretch daily for best results.',
+  };
+  document.getElementById('plan-tip').innerHTML = tips[goal] || tips['strength'];
+
+  document.getElementById('form-section').style.display = 'none';
+  document.getElementById('plan-section').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function resetForm() {
+  document.getElementById('form-section').style.display = 'block';
+  document.getElementById('plan-section').style.display = 'none';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
